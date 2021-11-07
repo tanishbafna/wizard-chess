@@ -3,8 +3,10 @@ import chess.pgn
 import chess.svg
 import chess.engine
 
-import sys
-import select
+import os
+import re
+# import sys
+# import select
 import time
 from cairosvg import svg2png
 
@@ -17,6 +19,7 @@ starting_positions = {
     'default': 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 }
 
+file_name = 'input_moves.txt'
 img_name = 'current_board.png'
 
 #---------------------
@@ -56,6 +59,8 @@ class chessGame():
             self.node.set_eval(score=info["score"])
             # print(self.node.eval().white().wdl(model='lichess').expectation())
             self.drawBoard()
+
+            return True
         
         else:
             return False
@@ -71,15 +76,46 @@ class chessGame():
         
         svg2png(bytestring=svg_board, write_to=img_name)
 
+#---------------------
+
+def getFirstMove(file_name=file_name):
+
+    moveRegex = re.compile(r'[a-h][1-8][a-h][1-8]')
+
+    with open(file_name, 'r') as f:
+        moves_in = f.read().strip('\n').strip().lower()
+
+    while not (len(moves_in) == 4 and re.match(moveRegex, moves_in)):
+        with open(file_name, 'r') as f:
+            moves_in = f.read().strip('\n').strip().lower()
+    
+    return moves_in
+
+def getMove(lastmove, file_name=file_name):
+
+    moves_in = lastmove
+    moveRegex = re.compile(r'[a-h][1-8][a-h][1-8]')
+
+    while moves_in in [lastmove, ''] or not (len(moves_in) == 4 and re.match(moveRegex, moves_in)):
+        with open(file_name, 'r') as f:
+            moves_in = f.read().strip('\n').strip().lower()
+        
+    return moves_in
+
+#---------------------
 
 newGame = chessGame()
-timeLeft = newGame.game.clock()
+with open(file_name, 'w') as f:
+    f.write('')
 
-while time.time() + timeLeft >= time.time():
+startClock = time.time()
+while not newGame.move(getFirstMove(), int(time.time() - startClock)):
+    pass
 
+while True:
     startClock = time.time()
-    i, o, e = select.select([sys.stdin], [], [], timeLeft)
-    while not newGame.move(i, int(time.time() - startClock)):
+    while not newGame.move(getMove(newGame.node.move), int(time.time() - startClock)):
         pass
+    print(newGame.game)
 
 engine.quit()

@@ -130,3 +130,4 @@ dmypy.json
 .pyre/
 
 current_board.png
+input_moves.txt
