@@ -9,6 +9,7 @@ defusedxml==0.7.1
 idna==3.3
 Pillow==8.4.0
 pycparser==2.20
+pyserial==3.5
 requests==2.26.0
 stockfish==3.17.0
 tinycss2==1.1.0

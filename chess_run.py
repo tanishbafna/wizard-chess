@@ -1,3 +1,4 @@
+import os
 import time
 from cairosvg import svg2png
 from chess import Outcome
@@ -9,6 +10,7 @@ import chess_helper
 
 file_name = 'input_moves.txt'
 img_name = 'current_board.png'
+save_dir = os.getcwd()
 
 #---------------------
 
@@ -29,6 +31,7 @@ while not newGame.board.outcome():
 outcome = newGame.board.outcome()
 newGame.game.headers['Result'] = outcome.result()
 print(newGame.game.headers)
+newGame.saveGame(save_dir)
 chess_model.quitEngine()
 
 #---------------------
