@@ -2,6 +2,10 @@ import chess
 import chess.pgn
 import chess.svg
 import chess.engine
+
+import re
+import seaborn as sns
+import matplotlib.pyplot as plt
 from datetime import datetime
 from cairosvg import svg2png
 
@@ -50,16 +54,25 @@ class chessGame():
             self.node.set_clock(updateTime)
             self.board.push(uciMove)
             
-            info = engine.analyse(self.board, chess.engine.Limit(time=0.15))
+            info = engine.analyse(self.board, chess.engine.Limit(time=0.2))
 
             self.node.set_eval(score=info["score"])
-            # print(self.node.eval().white().wdl(model='lichess').expectation())
+            try:
+                self.node.comment += f" [%prob {2*self.node.eval().white().wdl(model='lichess').expectation() - 1}]"
+            except AttributeError:
+                pass
+            
             self.drawBoard()
 
             return True
         
         else:
             return False
+    
+    def getProb(self, node) -> float:
+        prob_regex = re.compile(r'\[%prob (.*?)]')
+        match = prob_regex.search(node.comment)
+        return float(match.group(1))
     
     # def undoMove()
           
@@ -77,6 +90,19 @@ class chessGame():
         save_name = f'{self.game.headers["Event"]} [{self.game.headers["Date"]}]'
         pgn_file = open(f'{save_dir}/{save_name}', 'w', encoding='utf-8')
         self.game.accept(chess.pgn.FileExporter(pgn_file))
+    
+    def postAnalysis(self):
+        
+        probArr = [self.getProb(node) for node in self.game.mainline() if node.eval()]
+        fig, ax = plt.subplots()
+        fig.set_size_inches(15, 15 / 3)
+        g = sns.lineplot(data=probArr, ax = ax, color = 'blue');   
+        g.axhline(y=0.00, color='r', linestyle='-');
+        plt.ylim(-1.2, 1.2);
+        sns.despine()
+        plt.show()
+
+        return probArr
 
 #---------------------
 

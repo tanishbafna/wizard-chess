@@ -32,6 +32,7 @@ outcome = newGame.board.outcome()
 newGame.game.headers['Result'] = outcome.result()
 print(newGame.game.headers)
 newGame.saveGame(save_dir)
+newGame.postAnalysis()
 chess_model.quitEngine()
 
 #---------------------
