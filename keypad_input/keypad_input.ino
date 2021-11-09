@@ -74,10 +74,17 @@ void loop() {
   char key3 = keypad3.getKey();
   char key4 = keypad4.getKey();
 
-  if (key1 != NO_KEY || key2 != NO_KEY || key3 != NO_KEY || key4 != NO_KEY){
+  if (key1 != NO_KEY){
     Serial.println(key1);
+  }
+  if (key2 != NO_KEY){
     Serial.println(key2);
+  }
+  if (key3 != NO_KEY){
     Serial.println(key3);
+  }
+  if (key4 != NO_KEY){
     Serial.println(key4);
   }
+  
 }
