@@ -4,8 +4,10 @@ import chess.svg
 import chess.engine
 
 import re
+import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+from matplotlib.colors import ListedColormap
 from datetime import datetime
 from cairosvg import svg2png
 
@@ -56,9 +58,10 @@ class chessGame():
             
             info = engine.analyse(self.board, chess.engine.Limit(time=0.2))
 
-            self.node.set_eval(score=info["score"])
+            self.node.set_eval(score=info['score'])
             try:
-                self.node.comment += f" [%prob {2*self.node.eval().white().wdl(model='lichess').expectation() - 1}]"
+                self.node.comment += f" [%prob(n) {self.node.eval().white().wdl(model='lichess').expectation()}]"
+                self.node.comment += f" [%prob(c) {2*self.node.eval().white().wdl(model='lichess').expectation() - 1}]"
             except AttributeError:
                 pass
             
@@ -69,40 +72,74 @@ class chessGame():
         else:
             return False
     
-    def getProb(self, node) -> float:
-        prob_regex = re.compile(r'\[%prob (.*?)]')
+    def getProb_c(self, node) -> float:
+        prob_regex = re.compile(r'\[%prob\(c\) (.*?)]')
+        match = prob_regex.search(node.comment)
+        return float(match.group(1))
+    
+    def getProb_n(self, node) -> float:
+        prob_regex = re.compile(r'\[%prob\(n\) (.*?)]')
         match = prob_regex.search(node.comment)
         return float(match.group(1))
     
     # def undoMove()
           
-    def drawBoard(self, lastmove=True, size=900) -> None:
+    def drawBoard(self, lastmove=True, size=800) -> None:
 
         if lastmove:
             svg_board = chess.svg.board(self.board, size=size, lastmove=self.node.move)
         else:
             svg_board = chess.svg.board(self.board, size=size)
         
-        svg2png(bytestring=svg_board, write_to=self.img_name)
+        svg2png(bytestring=svg_board, write_to='img/'+self.img_name)
+    
+    def drawStartProbability(self) -> None:
+
+        prob = 0.50
+        df = pd.DataFrame(columns=['color','probability'], data=[['white', prob], ['black', 1 - prob]])
+
+        df = df.set_index('color').reindex(df.set_index('color').sum().sort_values().index, axis=1)
+        df.T.plot(kind='bar', stacked=True, colormap=ListedColormap(sns.color_palette('Greys', 10)), figsize=(4,8))
+
+        plt.xticks([])
+        plt.yticks([0,1], [prob, 1 - prob], rotation='vertical')
+        plt.savefig('img/'+'current_probability.png')
+    
+    def drawProbability(self) -> None:
+
+        prob = self.getProb_n(self.node)
+        df = pd.DataFrame(columns=['color','probability'], data=[['white', prob], ['black', 1 - prob]])
+
+        df = df.set_index('color').reindex(df.set_index('color').sum().sort_values().index, axis=1)
+        df.T.plot(kind='bar', stacked=True, colormap=ListedColormap(sns.color_palette('Greys', 10)), figsize=(4,8))
+
+        plt.xticks([])
+        plt.yticks([0,1], [prob, 1 - prob], rotation='vertical')
+        plt.savefig('img/'+'current_probability.png')
     
     def saveGame(self, save_dir) -> None:
 
-        save_name = f'{self.game.headers["Event"]} [{self.game.headers["Date"]}]'
+        save_name = f"{self.game.headers['Event']} [{self.game.headers['Date']}]"
         pgn_file = open(f'{save_dir}/{save_name}', 'w', encoding='utf-8')
         self.game.accept(chess.pgn.FileExporter(pgn_file))
     
     def postAnalysis(self):
         
-        probArr = [self.getProb(node) for node in self.game.mainline() if node.eval()]
-        fig, ax = plt.subplots()
-        fig.set_size_inches(15, 15 / 3)
-        g = sns.lineplot(data=probArr, ax = ax, color = 'blue');   
-        g.axhline(y=0.00, color='r', linestyle='-');
-        plt.ylim(-1.2, 1.2);
-        sns.despine()
-        plt.show()
+        probArr = [[i+1, self.getProb_c(node)] for i,node in enumerate(self.game.mainline()) if node.eval()]
+        df = pd.DataFrame(columns=['move','probability'], data=[[0,0.00]] + probArr)
 
-        return probArr
+        sns.set(style='darkgrid')
+        sns.relplot(data=df, x='move', y='probability', kind='line', height=5, aspect=2, color='black', markers="o").set(title='Post-Game Analysis')
+        sns.despine()
+        
+        plt.axhline(y=0.00, color='r', linestyle='-')
+        plt.ylim(-1.2, 1.2)
+        plt.xticks([])
+        #plt.show()
+
+        plt.savefig('img/'+'post_analysis.png')
+
+        return None
 
 #---------------------
 

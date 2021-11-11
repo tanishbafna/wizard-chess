@@ -1,7 +1,6 @@
 import os
 import time
 from cairosvg import svg2png
-from chess import Outcome
 
 import chess_model 
 import chess_helper
@@ -19,11 +18,15 @@ newGame = chess_model.chessGame(file_name, img_name)
 with open(file_name, 'w') as f:
     f.write('')
 
+print('Game has started!')
+newGame.drawStartProbability()
+
 startClock = time.time()
 while not newGame.move(chess_helper.getFirstMove(file_name), int(time.time() - startClock)):
     pass
 
 while not newGame.board.outcome():
+    newGame.drawProbability()
     startClock = time.time()
     while not newGame.move(chess_helper.getMove(newGame.node.move, file_name), int(time.time() - startClock)):
         pass
