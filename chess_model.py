@@ -84,7 +84,7 @@ class chessGame():
     
     # def undoMove()
           
-    def drawBoard(self, lastmove=True, size=800) -> None:
+    def drawBoard(self, lastmove=True, size=640) -> None:
 
         if lastmove:
             svg_board = chess.svg.board(self.board, size=size, lastmove=self.node.move)
@@ -93,29 +93,34 @@ class chessGame():
         
         svg2png(bytestring=svg_board, write_to='img/'+self.img_name)
     
-    def drawStartProbability(self) -> None:
+    def drawProbability(self, fresh=False) -> None:
 
-        prob = 0.50
+        if not fresh:
+            prob = self.getProb_n(self.node)
+        else:
+            prob = 0.50
+
         df = pd.DataFrame(columns=['color','probability'], data=[['white', prob], ['black', 1 - prob]])
 
         df = df.set_index('color').reindex(df.set_index('color').sum().sort_values().index, axis=1)
-        df.T.plot(kind='bar', stacked=True, colormap=ListedColormap(sns.color_palette('Greys', 10)), figsize=(4,8))
-
+        ax = df.T.plot(kind='bar', stacked=True, colormap=ListedColormap(sns.color_palette('Greys', 10)), figsize=(1.5,8.3), legend = None)
+        
         plt.xticks([])
-        plt.yticks([0,1], [prob, 1 - prob], rotation='vertical')
-        plt.savefig('img/'+'current_probability.png')
-    
-    def drawProbability(self) -> None:
+        plt.yticks([])
+        plt.box(False)
+        plt.margins(0,0)
+        plt.axis('off')
 
-        prob = self.getProb_n(self.node)
-        df = pd.DataFrame(columns=['color','probability'], data=[['white', prob], ['black', 1 - prob]])
+        for i,c in enumerate(ax.containers):
+            labels = ['%.2f' % v.get_height() if v.get_height() > 0 else '' for v in c]
+            if i == 0:
+                labels[0] = '+'+labels[0]
+                ax.bar_label(c, labels=labels, label_type='center')
+            else:
+                labels[0] = '-'+labels[0]
+                ax.bar_label(c, labels=labels, label_type='center', color='w')
 
-        df = df.set_index('color').reindex(df.set_index('color').sum().sort_values().index, axis=1)
-        df.T.plot(kind='bar', stacked=True, colormap=ListedColormap(sns.color_palette('Greys', 10)), figsize=(4,8))
-
-        plt.xticks([])
-        plt.yticks([0,1], [prob, 1 - prob], rotation='vertical')
-        plt.savefig('img/'+'current_probability.png')
+        plt.savefig('img/'+'current_probability.png', bbox_inches='tight', pad_inches=0, transparent=True)
     
     def saveGame(self, save_dir) -> None:
 

@@ -19,7 +19,7 @@ with open(file_name, 'w') as f:
     f.write('')
 
 print('Game has started!')
-newGame.drawStartProbability()
+newGame.drawProbability(True)
 
 startClock = time.time()
 while not newGame.move(chess_helper.getFirstMove(file_name), int(time.time() - startClock)):
