@@ -34,6 +34,7 @@ offset_x = 30
 offset_y = 20
 font1 = pygame.font.SysFont('Cambria', 24)
 font2 = pygame.font.SysFont('Cambria', 26)
+font3 = pygame.font.SysFont('Cambria', 18)
 
 board_img = 'img/' + img_name
 prob_img = 'img/' + 'current_probability.png'
@@ -43,9 +44,9 @@ black_img = 'img/' + 'black.png'
 #---------------------
 
 # Setup the Game
-white_name = input('White Player: ') or 'White'
-black_name = input('Black Player: ') or 'Black'
-clock_input = input('Clock (Min+Increament): ') or '10+0'
+white_name = 'Tanish'
+black_name = 'Sarvag'
+clock_input = '10+0'
 newGame = chess_model.chessGame(file_name, img_name, White=white_name, Black=black_name, clock=clock_input)
 
 white_player = font1.render(white_name, True, (255, 255, 255))
@@ -56,11 +57,13 @@ black_timeFloat = newGame.time_control
 
 print('Game has started!')
 startClock = time.time()
+gameplay_arr = []
+gameOver = 0
 lastmove = ''
 
 #---------------------
 
-while not newGame.board.outcome() and not white_timeFloat == 0 and not black_timeFloat == 0:
+while not gameOver == 2:
 
     board = pygame.image.load(board_img)
     probability = pygame.image.load(prob_img)
@@ -79,6 +82,9 @@ while not newGame.board.outcome() and not white_timeFloat == 0 and not black_tim
 
     display_surface.blit(black_player, (60+offset_x, 10+offset_y))
     display_surface.blit(white_player, (60+offset_x, 730+offset_y))
+
+    for i,x in enumerate(gameplay_arr):
+        display_surface.blit(font3.render(x, True, (255,255,255)), (800+offset_x, 60+offset_y+(25*i)))
 
     #---------------------
 
@@ -102,19 +108,28 @@ while not newGame.board.outcome() and not white_timeFloat == 0 and not black_tim
 
     #---------------------
 
-    movePlayed = chess_helper.getMove_integrated(file_name, lastmove)
+    if gameOver == 0 and not newGame.board.outcome() and not white_timeFloat == 0 and not black_timeFloat == 0:
 
-    if not movePlayed:
-        if newGame.board.turn:
-            white_timeFloat -= 1
+        movePlayed = chess_helper.getMove_integrated(file_name, lastmove)
+
+        if not movePlayed:
+            if newGame.board.turn:
+                white_timeFloat -= 1
+            else:
+                black_timeFloat -= 1
+            time.sleep(1)
         else:
-            black_timeFloat -= 1
-        time.sleep(1)
-    else:
-        newGame.move(movePlayed, int(time.time() - startClock))
-        startClock = time.time()
-        lastmove = movePlayed
-        print(newGame.board.outcome())
+            newGame.move(movePlayed, int(time.time() - startClock))
+            startClock = time.time()
+            lastmove = movePlayed
+        
+        gameplay_arr = newGame.gamePlay()
+    
+    if newGame.board.outcome() or white_timeFloat == 0 or black_timeFloat == 0:
+        gameOver += 1
+
+    if gameOver == 2:
+        input()
 
 #---------------------
 

@@ -1,0 +1,15 @@
+[Event "Tanish v. Sarvag"]
+[Site "?"]
+[Date "2021.11.20"]
+[Round "?"]
+[White "Tanish"]
+[Black "Sarvag"]
+[Result "1-0"]
+
+{ [%clk 0:10:00] } 1. e4
+{ [%clk 0:09:56] [%eval 0.32] [%prob(n) 0.532] [%prob(c) 0.06400000000000006] }
+1... f5 { [%clk 0:09:55] [%eval 2.74] [%prob(n) 0.75] [%prob(c) 0.5] } 2. exf5
+{ [%clk 0:09:51] [%eval 2.30] [%prob(n) 0.714] [%prob(c) 0.42799999999999994] }
+2... g5 { [%clk 0:09:49] [%eval #1] [%prob(n) 1.0] [%prob(c) 1.0] } 3. Qh5#
+{ [%clk 0:09:45] } 1-0
+

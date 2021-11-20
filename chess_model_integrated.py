@@ -131,6 +131,17 @@ class chessGame():
 
         plt.savefig('img/'+'current_probability.png', bbox_inches='tight', pad_inches=0, transparent=True)
     
+    def gamePlay(self) -> str:
+
+        gameplay_exp = chess.pgn.StringExporter(headers=False, comments=False, variations=False)
+        gameplay_str = self.game.accept(gameplay_exp)
+        x = re.split(r'\d+\.', gameplay_str, flags=re.IGNORECASE)
+
+        for i, y in enumerate(x):
+            x[i] = f'{i}.' + y
+
+        return x[1:]
+    
     def saveGame(self, save_dir) -> None:
 
         save_name = f"{self.game.headers['Event']} [{self.game.headers['Date']}]"
