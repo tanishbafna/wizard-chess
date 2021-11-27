@@ -6,7 +6,7 @@ import os
 import time
 
 import chess_model_integrated as chess_model
-import chess_helper
+import chess_helper_integrated as chess_helper
 
 #---------------------
 

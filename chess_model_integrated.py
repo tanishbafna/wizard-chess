@@ -4,6 +4,7 @@ import chess.svg
 import chess.engine
 
 import re
+import mplcursors
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -130,6 +131,7 @@ class chessGame():
                 ax.bar_label(c, labels=labels, label_type='center', color='w')
 
         plt.savefig('img/'+'current_probability.png', bbox_inches='tight', pad_inches=0, transparent=True)
+        plt.close()
     
     def gamePlay(self) -> str:
 
@@ -148,23 +150,27 @@ class chessGame():
         pgn_file = open(f'{save_dir}/{save_name}', 'w', encoding='utf-8')
         self.game.accept(chess.pgn.FileExporter(pgn_file))
     
-    def postAnalysis(self):
+    def postAnalysis(self) -> None:
         
-        probArr = [[i+1, self.getProb_c(node)] for i,node in enumerate(self.game.mainline()) if node.eval()]
-        df = pd.DataFrame(columns=['move','probability'], data=[[0,0.00]] + probArr)
+        probArr = [round(self.getProb_c(node), 2) for node in self.game.mainline() if node.eval()]
+        movesArr = [(node.turn(), node.san()) for node in self.game.mainline() if node.eval()]
+        labels = [f'Turn: {"WHITE" if not movesArr[i][0] else "BLACK"}\nMove: {movesArr[i][1]}\nProbability: {probArr[i]}' for i in range(len(probArr))]
 
-        sns.set(style='darkgrid')
-        sns.relplot(data=df, x='move', y='probability', kind='line', height=5, aspect=2, color='black', markers="o").set(title='Post-Game Analysis')
-        sns.despine()
-        
+        fig, ax = plt.subplots()
+        ax.clear()
+        ax.plot(probArr)
+        ax.plot(probArr, "ro")
+
         plt.axhline(y=0.00, color='r', linestyle='-')
         plt.ylim(-1.2, 1.2)
         plt.xticks([])
-        #plt.show()
 
-        plt.savefig('img/'+'post_analysis.png')
+        mplcursors.cursor(ax).connect(
+            "add", lambda sel: sel.annotation.set_text(labels[sel.index]))
 
-        return None
+        plt.title('Post-Game Analysis')
+        plt.show()
+        plt.close()
 
 #---------------------
 
