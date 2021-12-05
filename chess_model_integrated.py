@@ -33,6 +33,8 @@ class chessGame():
         self.board = chess.Board(fen=starting_positions[position])
         self.game = chess.pgn.Game()
         self.game.setup(self.board)
+        self.whiteDead = []
+        self.blackDead = []
 
         self.game.headers['White'] = White
         self.game.headers['Black'] = Black
@@ -54,6 +56,13 @@ class chessGame():
     def move(self, moveIn, timePassed) -> bool:
 
         uciMove = chess.Move.from_uci(moveIn)
+        dead = self.board.piece_at(uciMove.to_square)
+
+        if dead:
+            if dead.symbol().islower():
+                self.blackDead.append(dead.symbol())
+            else:
+                self.whiteDead.append(dead.symbol())
 
         if self.board.is_legal(uciMove):
         

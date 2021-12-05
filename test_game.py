@@ -5,7 +5,7 @@ moves_2 = {1:['e2e4', 'f7f5'], 2:['e4f5', 'g7g5'], 3:['d1h5', 'f6g4']}
 
 print('')
 
-for n, moveSet in moves_2.items():
+for n, moveSet in moves_1.items():
 
     for move in moveSet:
         print(f'{n}. {move}')

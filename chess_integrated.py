@@ -44,9 +44,9 @@ black_img = 'img/' + 'black.png'
 #---------------------
 
 # Setup the Game
-white_name = 'Tanish'
-black_name = 'Sarvag'
-clock_input = '10+0'
+white_name = input('White: ') or 'White'
+black_name = input('Black: ') or 'Black'
+clock_input = input('Time Control: ') or '10+0'
 newGame = chess_model.chessGame(file_name, img_name, White=white_name, Black=black_name, clock=clock_input)
 
 white_player = font1.render(white_name, True, (255, 255, 255))
@@ -96,6 +96,20 @@ while not gameOver == 2:
 
     display_surface.blit(black_timeLeft, (565+offset_x, 8+offset_y))
     display_surface.blit(white_timeLeft, (565+offset_x, 728+offset_y))
+
+    #---------------------
+
+    x = 200
+    y = 730
+    for i in newGame.whiteDead:
+        display_surface.blit(pygame.image.load(f'img/pieces/{chess_helper.pieces_mapping[i]}.png'), (x+offset_x, y+offset_y))
+        x+=32
+    
+    x = 200
+    y = 10
+    for i in newGame.blackDead:
+        display_surface.blit(pygame.image.load(f'img/pieces/{chess_helper.pieces_mapping[i]}.png'), (x+offset_x, y+offset_y))
+        x+=32
 
     #---------------------
 

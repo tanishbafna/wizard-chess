@@ -15,3 +15,20 @@ def getMove_integrated(file_name, lastmove):
         return moves_in
 
 #---------------------
+
+pieces_mapping = {
+    "b":"b_bishop",
+    "k":"b_king",
+    "n":"b_knight",
+    "p":"b_pawn",
+    "q":"b_queen",
+    "r":"b_rook",
+    "B":"w_bishop",
+    "K":"w_king",
+    "N":"w_knight",
+    "P":"w_pawn",
+    "Q":"w_queen",
+    "R":"w_rook"
+}
+
+#---------------------
