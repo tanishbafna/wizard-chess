@@ -33,8 +33,8 @@ class chessGame():
         self.board = chess.Board(fen=starting_positions[position])
         self.game = chess.pgn.Game()
         self.game.setup(self.board)
-        self.whiteDead = []
-        self.blackDead = []
+        self.whiteDead = {'P':0,'N':0,'B':0,'R':0,'Q':0,'K':0}
+        self.blackDead = {'p':0,'n':0,'b':0,'r':0,'q':0,'k':0}
 
         self.game.headers['White'] = White
         self.game.headers['Black'] = Black
@@ -56,15 +56,16 @@ class chessGame():
     def move(self, moveIn, timePassed) -> bool:
 
         uciMove = chess.Move.from_uci(moveIn)
-        dead = self.board.piece_at(uciMove.to_square)
-
-        if dead:
-            if dead.symbol().islower():
-                self.blackDead.append(dead.symbol())
-            else:
-                self.whiteDead.append(dead.symbol())
 
         if self.board.is_legal(uciMove):
+
+            dead = self.board.piece_at(uciMove.to_square)
+
+            if dead:
+                if dead.symbol().islower():
+                    self.blackDead[dead.symbol()] += 1
+                else:
+                    self.whiteDead[dead.symbol()] += 1
         
             self.node = self.node.add_main_variation(uciMove)
             updateTime = (self.node.parent.parent.clock() if self.node.parent.parent else self.node.parent.clock()) - timePassed

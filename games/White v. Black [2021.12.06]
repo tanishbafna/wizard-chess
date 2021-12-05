@@ -1,0 +1,11 @@
+[Event "White v. Black"]
+[Site "?"]
+[Date "2021.12.06"]
+[Round "?"]
+[White "White"]
+[Black "Black"]
+[Result "1-0"]
+[Termination "Black Resigns"]
+
+{ [%clk 0:10:00] } 1-0
+

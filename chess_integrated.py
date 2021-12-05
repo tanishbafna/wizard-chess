@@ -1,9 +1,6 @@
-
-import pygame
-from cairosvg import svg2png
-
 import os
 import time
+import pygame
 
 import chess_model_integrated as chess_model
 import chess_helper_integrated as chess_helper
@@ -13,7 +10,7 @@ import chess_helper_integrated as chess_helper
 # Running Variables
 file_name = 'input_moves.txt'
 img_name = 'current_board.png'
-save_dir = os.getcwd()
+save_dir = os.getcwd() + '/games'
 
 #---------------------
 
@@ -55,11 +52,16 @@ black_player = font1.render(black_name, True, (255, 255, 255))
 white_timeFloat = newGame.time_control
 black_timeFloat = newGame.time_control
 
+bResignButtonText = font3.render('Resign', True, (255, 255, 255))
+drawButtonText = font3.render('Draw', True, (78, 80, 79))
+wResignButtonText = font3.render('Resign', True, (0, 0, 0))
+
 print('Game has started!')
 startClock = time.time()
 gameplay_arr = []
 gameOver = 0
 lastmove = ''
+buttonClicked = False
 
 #---------------------
 
@@ -84,7 +86,24 @@ while not gameOver == 2:
     display_surface.blit(white_player, (60+offset_x, 730+offset_y))
 
     for i,x in enumerate(gameplay_arr):
-        display_surface.blit(font3.render(x, True, (255,255,255)), (800+offset_x, 60+offset_y+(25*i)))
+        if i <= 25:
+            display_surface.blit(font3.render(x, True, (255,255,255)), (800+offset_x, 60+offset_y+(25*i)))
+        elif i <= 50:
+            display_surface.blit(font3.render(x, True, (255,255,255)), (960+offset_x, 60+offset_y+(25*i)-(25*24)))
+        elif i <= 75:
+            display_surface.blit(font3.render(x, True, (255,255,255)), (1120+offset_x, 60+offset_y+(25*i)-(25*49)))
+
+    bResignButton = pygame.Rect(1200+offset_x, 255+offset_y, 100, 50)
+    drawButton = pygame.Rect(1200+offset_x, 355+offset_y, 100, 50)
+    wResignButton = pygame.Rect(1200+offset_x, 455+offset_y, 100, 50)
+
+    pygame.draw.rect(display_surface, [0, 0, 0], bResignButton)
+    pygame.draw.rect(display_surface, [44, 189, 89], drawButton)
+    pygame.draw.rect(display_surface, [255, 255, 255], wResignButton)
+
+    display_surface.blit(bResignButtonText, (1224+offset_x, 270+offset_y))
+    display_surface.blit(drawButtonText, (1228+offset_x, 370+offset_y))
+    display_surface.blit(wResignButtonText, (1224+offset_x, 470+offset_y))
 
     #---------------------
 
@@ -99,17 +118,25 @@ while not gameOver == 2:
 
     #---------------------
 
-    x = 200
+    x = 200 - 10
     y = 730
-    for i in newGame.whiteDead:
-        display_surface.blit(pygame.image.load(f'img/pieces/{chess_helper.pieces_mapping[i]}.png'), (x+offset_x, y+offset_y))
-        x+=32
-    
-    x = 200
+    for symbol, num in newGame.whiteDead.items():
+        for n in range(num):
+            x += 10
+            display_surface.blit(pygame.image.load(f'img/pieces/{chess_helper.pieces_mapping[symbol]}.png'), (x+offset_x, y+offset_y))
+
+        if num > 0:
+            x += 17
+
+    x = 200 - 10
     y = 10
-    for i in newGame.blackDead:
-        display_surface.blit(pygame.image.load(f'img/pieces/{chess_helper.pieces_mapping[i]}.png'), (x+offset_x, y+offset_y))
-        x+=32
+    for symbol, num in newGame.blackDead.items():
+        for n in range(num):
+            x += 10
+            display_surface.blit(pygame.image.load(f'img/pieces/{chess_helper.pieces_mapping[symbol]}.png'), (x+offset_x, y+offset_y))
+        
+        if num > 0:
+            x += 17
 
     #---------------------
 
@@ -117,12 +144,23 @@ while not gameOver == 2:
         if event.type == pygame.QUIT:
             pygame.quit()
             quit()
+        
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = event.pos
+
+            if drawButton.collidepoint(mouse_pos):
+                print('Draw Accepted')
+                buttonClicked = 2
+            elif wResignButton.collidepoint(mouse_pos):
+                buttonClicked = 3
+            elif bResignButton.collidepoint(mouse_pos):
+                buttonClicked = 1
 
     pygame.display.update() 
 
     #---------------------
 
-    if gameOver == 0 and not newGame.board.outcome() and not white_timeFloat == 0 and not black_timeFloat == 0:
+    if gameOver == 0 and not newGame.board.outcome(claim_draw=True) and not white_timeFloat == 0 and not black_timeFloat == 0 and buttonClicked is False:
 
         movePlayed = chess_helper.getMove_integrated(file_name, lastmove)
 
@@ -139,7 +177,7 @@ while not gameOver == 2:
         
         gameplay_arr = newGame.gamePlay()
     
-    if newGame.board.outcome() or white_timeFloat == 0 or black_timeFloat == 0:
+    if newGame.board.outcome(claim_draw=True) or white_timeFloat == 0 or black_timeFloat == 0 or buttonClicked is not False:
         gameOver += 1
 
     if gameOver == 2:
@@ -147,13 +185,26 @@ while not gameOver == 2:
 
 #---------------------
 
-if newGame.board.outcome():
-    outcome = newGame.board.outcome()
+if newGame.board.outcome(claim_draw=True):
+    outcome = newGame.board.outcome(claim_draw=True)
     newGame.game.headers['Result'] = outcome.result()
+    newGame.game.headers['Termination'] = outcome.termination()
 elif white_timeFloat == 0:
     newGame.game.headers['Result'] = '0-1'
+    newGame.game.headers['Termination'] = 'Black wins by Flag Fall'
 elif black_timeFloat == 0:
     newGame.game.headers['Result'] = '1-0'
+    newGame.game.headers['Termination'] = 'White wins by Flag Fall'
+elif buttonClicked:
+    if buttonClicked == 1:
+        newGame.game.headers['Result'] = '1-0'
+        newGame.game.headers['Termination'] = 'Black Resigns'
+    elif buttonClicked == 2:
+        newGame.game.headers['Result'] = '1/2-1/2'
+        newGame.game.headers['Termination'] = 'Draw Accepted'
+    elif buttonClicked == 3:
+        newGame.game.headers['Result'] = '0-1'
+        newGame.game.headers['Termination'] = 'White Resigns'
 
 print(newGame.game.headers)
 newGame.saveGame(save_dir)
