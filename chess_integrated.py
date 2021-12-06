@@ -101,9 +101,9 @@ while not gameOver == 2:
     pygame.draw.rect(display_surface, [44, 189, 89], drawButton)
     pygame.draw.rect(display_surface, [255, 255, 255], wResignButton)
 
-    display_surface.blit(bResignButtonText, (1224+offset_x, 270+offset_y))
-    display_surface.blit(drawButtonText, (1228+offset_x, 370+offset_y))
-    display_surface.blit(wResignButtonText, (1224+offset_x, 470+offset_y))
+    display_surface.blit(bResignButtonText, (1224+offset_x, 271+offset_y))
+    display_surface.blit(drawButtonText, (1230+offset_x, 371+offset_y))
+    display_surface.blit(wResignButtonText, (1224+offset_x, 471+offset_y))
 
     #---------------------
 
@@ -181,30 +181,42 @@ while not gameOver == 2:
         gameOver += 1
 
     if gameOver == 2:
+
+        if newGame.board.outcome(claim_draw=True):
+            outcome = newGame.board.outcome(claim_draw=True)
+            newGame.game.headers['Result'] = outcome.result()
+            newGame.game.headers['Termination'] = str(outcome.termination).replace('Termination.','')
+        elif white_timeFloat == 0:
+            newGame.game.headers['Result'] = '0-1'
+            newGame.game.headers['Termination'] = 'Black wins by Flag Fall'
+        elif black_timeFloat == 0:
+            newGame.game.headers['Result'] = '1-0'
+            newGame.game.headers['Termination'] = 'White wins by Flag Fall'
+        elif buttonClicked:
+            if buttonClicked == 1:
+                newGame.game.headers['Result'] = '1-0'
+                newGame.game.headers['Termination'] = 'Black Resigns'
+            elif buttonClicked == 2:
+                newGame.game.headers['Result'] = '1/2-1/2'
+                newGame.game.headers['Termination'] = 'Draw Accepted'
+            elif buttonClicked == 3:
+                newGame.game.headers['Result'] = '0-1'
+                newGame.game.headers['Termination'] = 'White Resigns'
+
+        i = len(gameplay_arr)
+        x = f"{newGame.game.headers['Result']}: {newGame.game.headers['Termination']}    [Press ENTER]"
+
+        if i <= 25:
+            display_surface.blit(font3.render(x, True, (255,255,255)), (800+offset_x, 60+offset_y+(27*i)))
+        elif i <= 50:
+            display_surface.blit(font3.render(x, True, (255,255,255)), (960+offset_x, 60+offset_y+(27*i)-(25*24)))
+        elif i <= 75:
+            display_surface.blit(font3.render(x, True, (255,255,255)), (1120+offset_x, 60+offset_y+(27*i)-(25*49)))
+
+        pygame.display.update()
         input()
 
 #---------------------
-
-if newGame.board.outcome(claim_draw=True):
-    outcome = newGame.board.outcome(claim_draw=True)
-    newGame.game.headers['Result'] = outcome.result()
-    newGame.game.headers['Termination'] = outcome.termination()
-elif white_timeFloat == 0:
-    newGame.game.headers['Result'] = '0-1'
-    newGame.game.headers['Termination'] = 'Black wins by Flag Fall'
-elif black_timeFloat == 0:
-    newGame.game.headers['Result'] = '1-0'
-    newGame.game.headers['Termination'] = 'White wins by Flag Fall'
-elif buttonClicked:
-    if buttonClicked == 1:
-        newGame.game.headers['Result'] = '1-0'
-        newGame.game.headers['Termination'] = 'Black Resigns'
-    elif buttonClicked == 2:
-        newGame.game.headers['Result'] = '1/2-1/2'
-        newGame.game.headers['Termination'] = 'Draw Accepted'
-    elif buttonClicked == 3:
-        newGame.game.headers['Result'] = '0-1'
-        newGame.game.headers['Termination'] = 'White Resigns'
 
 print(newGame.game.headers)
 newGame.saveGame(save_dir)
