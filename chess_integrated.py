@@ -89,9 +89,9 @@ while not gameOver == 2:
         if i <= 25:
             display_surface.blit(font3.render(x, True, (255,255,255)), (800+offset_x, 60+offset_y+(25*i)))
         elif i <= 50:
-            display_surface.blit(font3.render(x, True, (255,255,255)), (960+offset_x, 60+offset_y+(25*i)-(25*24)))
+            display_surface.blit(font3.render(x, True, (255,255,255)), (960+offset_x, 60+offset_y+(25*i)-(25*26)))
         elif i <= 75:
-            display_surface.blit(font3.render(x, True, (255,255,255)), (1120+offset_x, 60+offset_y+(25*i)-(25*49)))
+            display_surface.blit(font3.render(x, True, (255,255,255)), (1120+offset_x, 60+offset_y+(25*i)-(25*51)))
 
     bResignButton = pygame.Rect(1200+offset_x, 255+offset_y, 100, 50)
     drawButton = pygame.Rect(1200+offset_x, 355+offset_y, 100, 50)
@@ -209,9 +209,9 @@ while not gameOver == 2:
         if i <= 25:
             display_surface.blit(font3.render(x, True, (255,255,255)), (800+offset_x, 60+offset_y+(27*i)))
         elif i <= 50:
-            display_surface.blit(font3.render(x, True, (255,255,255)), (960+offset_x, 60+offset_y+(27*i)-(25*24)))
+            display_surface.blit(font3.render(x, True, (255,255,255)), (960+offset_x, 60+offset_y+(27*i)-(25*26)))
         elif i <= 75:
-            display_surface.blit(font3.render(x, True, (255,255,255)), (1120+offset_x, 60+offset_y+(27*i)-(25*49)))
+            display_surface.blit(font3.render(x, True, (255,255,255)), (1120+offset_x, 60+offset_y+(27*i)-(25*51)))
 
         pygame.display.update()
         input()
