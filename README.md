@@ -2,6 +2,9 @@
 
 Wizard Chess is a Python application with an Arduino plugin to take input from a physical matrix chess board and output a real-time graphical dashboard with several informational features.
 
+![alt text](https://github.com/tanishbafna/wizard-chess/blob/main/examples/dashboard.jpg?raw=true)
+![alt text](https://github.com/tanishbafna/wizard-chess/blob/main/examples/analysis.jpg?raw=true)
+
 ## Installation
 
 1. Clone this repository to your local machine.
